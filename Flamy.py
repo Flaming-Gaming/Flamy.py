@@ -19,7 +19,7 @@ client = commands.Bot(command_prefix = get_prefix, owner_id = config["Owner"])
 
 @client.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = '.help'))
+    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = '.help', type = discord.ActivityType.watching))
 #    change_status.start()
     print('Bot is online.')
 
