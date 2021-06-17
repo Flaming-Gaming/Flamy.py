@@ -128,3 +128,4 @@ for filename in os.listdir('./cogs'):
 
 client.ipc.start()
 client.run(config["Token"])
+client.run(os.environ["Token"])
