@@ -3,8 +3,10 @@ import json
 import os
 from discord.ext import commands, tasks, ipc
 from itertools import cycle
-
 from quart import cli
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class MyBot(commands.Bot):
 
@@ -22,16 +24,13 @@ class MyBot(commands.Bot):
 	async def on_ipc_error(self, endpoint, error):
 		print(endpoint, "raised", error)
 
-with open('config.json', 'r') as f:
-    config = json.load(f)
-
 def get_prefix(client, message):
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
 
     return prefixes[str(message.guild.id)]
 
-client = MyBot(command_prefix = get_prefix, owner_id = config["Owner"])
+client = MyBot(command_prefix = get_prefix, owner_id = int(os.getenv("Owner")))
 #client.remove_command('help')
 #status = cycle(['wip', 'in the making'])
 
@@ -127,5 +126,4 @@ for filename in os.listdir('./cogs'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
 client.ipc.start()
-client.run(config["Token"])
-client.run(os.environ["Token"])
+client.run(os.getenv("Token"))

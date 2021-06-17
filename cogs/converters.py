@@ -2,9 +2,8 @@ import discord
 import json
 import requests
 from discord.ext import commands
-
-with open('config.json', 'r') as f:
-    config = json.load(f)
+import os
+from dotenv import load_dotenv
 
 class Converters(commands.Cog):
 
@@ -64,7 +63,7 @@ class Converters(commands.Cog):
     async def currency(self, ctx, amount: float, currency_in: str, currency_out: str):
         currency_in = currency_in.upper()
         currency_out = currency_out.upper()
-        response = requests.get(config["Currency API"])
+        response = requests.get(os.getenv("Currency_API"))
         if response and response.text:
             result = json.loads(response.text)
             if result["success"] == True:   

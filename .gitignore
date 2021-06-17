@@ -5,6 +5,7 @@ __pycache__
 Icons
 dashboard
 .vscode/
+.env
 
 # gitignore Python
 # Byte-compiled / optimized / DLL files

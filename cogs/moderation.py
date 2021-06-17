@@ -2,9 +2,8 @@ import discord
 import json
 import asyncio
 from discord.ext import commands
-
-with open('config.json', 'r') as f:
-    config = json.load(f)
+import os
+from dotenv import load_dotenv
 
 class Moderation(commands.Cog):
 
@@ -31,7 +30,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.check_any(commands.is_owner(), commands.has_permissions(kick_members=True))
     async def kick(self, ctx, member : discord.Member, *, reason=None):
-        if member.id == config["Owner"]:
+        if member.id == os.getenv("Owner"):
             await ctx.send('Can\'t kick my owner')
         else:
             await member.kick(reason=reason)
@@ -41,7 +40,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.check_any(commands.is_owner(), commands.has_permissions(ban_members=True))
     async def ban(self, ctx, member : discord.Member, *, reason=None):
-        if member.id == config["Owner"]:
+        if member.id == os.getenv("Owner"):
             await ctx.send('Can\'t ban my owner')
         else:
             await member.ban(reason=reason)
@@ -80,7 +79,7 @@ class Moderation(commands.Cog):
         multiplier = {'s': 1, 'm': 60, 'h': 3600}
         amount, unit = duration
 
-        if member.id == config["Owner"]:
+        if member.id == os.getenv("Owner"):
             await ctx.send('Can\'t ban my owner')
         else:
             await ctx.guild.ban(member)

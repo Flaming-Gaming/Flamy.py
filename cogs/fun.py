@@ -4,9 +4,6 @@ import random
 from discord.ext import commands
 from datetime import datetime
 
-with open('config.json', 'r') as f:
-    config = json.load(f)
-
 class Fun(commands.Cog):
 
     def __init__(self, client):
