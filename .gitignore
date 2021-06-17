@@ -3,6 +3,7 @@ config.json
 prefixes.json
 __pycache__
 Icons
+dashboard
 .vscode/
 
 # gitignore Python

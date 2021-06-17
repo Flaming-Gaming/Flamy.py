@@ -1,8 +1,26 @@
 import discord
 import json
 import os
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, ipc
 from itertools import cycle
+
+from quart import cli
+
+class MyBot(commands.Bot):
+
+	def __init__(self,*args,**kwargs):
+		super().__init__(*args,**kwargs)
+
+		self.ipc = ipc.Server(self, secret_key = "lol")
+
+	async def on_ready(self):
+		print("Bot is ready.")
+
+	async def on_ipc_ready(self):
+		print("Ipc server is ready.")
+
+	async def on_ipc_error(self, endpoint, error):
+		print(endpoint, "raised", error)
 
 with open('config.json', 'r') as f:
     config = json.load(f)
@@ -13,9 +31,20 @@ def get_prefix(client, message):
 
     return prefixes[str(message.guild.id)]
 
-client = commands.Bot(command_prefix = get_prefix, owner_id = config["Owner"])
+client = MyBot(command_prefix = get_prefix, owner_id = config["Owner"])
 #client.remove_command('help')
 #status = cycle(['wip', 'in the making'])
+
+@client.ipc.route()
+async def get_guild_count(data):
+	return len(client.guilds)
+
+@client.ipc.route()
+async def get_guild_ids(data):
+	final = []
+	for guild in client.guilds:
+		final.append(guild.id)
+	return final
 
 @client.event
 async def on_ready():
@@ -97,4 +126,5 @@ for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
+client.ipc.start()
 client.run(config["Token"])
