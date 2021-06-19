@@ -45,6 +45,19 @@ async def get_guild_ids(data):
 		final.append(guild.id)
 	return final
 
+@client.ipc.route()
+async def get_guild(data):
+	guild = client.get_guild(data.guild_id)
+	if guild is None: return None
+
+	guild_data = {
+		"name": guild.name,
+		"id": guild.id,
+		"prefix" : "."
+	}
+
+	return guild_data
+
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = '.help', type = discord.ActivityType.watching))
