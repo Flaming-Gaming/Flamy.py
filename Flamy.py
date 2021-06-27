@@ -60,13 +60,23 @@ async def get_guild(data):
 
 @client.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = '.help', type = discord.ActivityType.watching))
+#    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'test', type = discord.ActivityType.watching))
 #    change_status.start()
     print('Bot is online.')
 
 #@tasks.loop(seconds=30)
 #async def change_status():
-#    await client.change_presence(activity=discord.Game(next(status)))
+#    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'over {str(len(client.guilds))} servers', type = discord.ActivityType.watching))
+
+@client.event
+async def on_guild_join(guild):
+    current_guilds = len(client.guilds)
+    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'over {current_guilds} servers', type = discord.ActivityType.watching))
+
+@client.event
+async def on_guild_remove(guild):
+    current_guilds = len(client.guilds)
+    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'over {current_guilds} servers', type = discord.ActivityType.watching))
 
 #prefix
 @client.event
