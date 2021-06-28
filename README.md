@@ -1,3 +1,3 @@
-# Flamy-Public
+# Flamy-Bot
 A discord bot I'm working on...
 Hopefully one day it will go places >:3
