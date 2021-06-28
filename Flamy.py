@@ -1,5 +1,6 @@
 import discord
 import json
+import asyncpg
 import os
 from discord.ext import commands, tasks, ipc
 from itertools import cycle
@@ -7,6 +8,10 @@ from quart import cli
 from dotenv import load_dotenv
 
 load_dotenv()
+
+async def create_db_pool():
+    DATABASE_URL = os.environ['DATABASE_URL']
+    client.pg_con = await asyncpg.create_pool(DATABASE_URL)
 
 class MyBot(commands.Bot):
 
@@ -24,11 +29,10 @@ class MyBot(commands.Bot):
 	async def on_ipc_error(self, endpoint, error):
 		print(endpoint, "raised", error)
 
-def get_prefix(client, message):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-
-    return prefixes[str(message.guild.id)]
+async def get_prefix(client, message):
+    guild_id = str(message.guild.id)
+    prefixes = await client.pg_con.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
+    return prefixes['prefix']
 
 client = MyBot(command_prefix = get_prefix, owner_id = int(os.getenv("Owner")))
 #client.remove_command('help')
@@ -81,35 +85,19 @@ async def on_leave(guild):
 #prefix
 @client.event
 async def on_guild_join(guild):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-
-    prefixes[str(guild.id)] = '.'
-
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
+    guild_id = str(guild.id)
+    await client.pg_con.execute("INSERT INTO prefixes (guild_id, prefix) VALUES ($1, '.')", guild_id)
 
 @client.event
 async def on_guild_remove(guild):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-
-    prefixes.pop(str(guild.id))
-
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
+    guild_id = str(guild.id)
+    await client.pg_con.execute("DELETE FROM prefixes WHERE guild_id = $1", guild_id)
 
 @client.command()
 @commands.check_any(commands.is_owner(), commands.has_permissions(manage_guild=True))
 async def change_prefix(ctx, prefix):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-
-    prefixes[str(ctx.guild.id)] = prefix
-
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
-
+    guild_id = str(ctx.guild.id)
+    await client.pg_con.execute("UPDATE prefixes SET prefix = $1 WHERE guild_id = $2", prefix, guild_id)
     await ctx.send(f'Prefix changed to: {prefix}')
 
 #@client.command()
@@ -149,4 +137,5 @@ for filename in os.listdir('./cogs'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
 client.ipc.start()
+client.loop.run_until_complete(create_db_pool())
 client.run(os.getenv("Token"))
