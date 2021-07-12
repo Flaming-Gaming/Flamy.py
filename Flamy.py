@@ -1,4 +1,5 @@
 import discord
+from discord import Intents
 import json
 import asyncpg
 import os
@@ -38,7 +39,7 @@ async def get_prefix(client, message):
     prefixes = await client.pg_con1.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
     return prefixes['prefix']
 
-client = MyBot(command_prefix = get_prefix, owner_id = int(os.getenv("Owner")))
+client = MyBot(command_prefix = get_prefix, intents = Intents().all(), owner_id = int(os.getenv("Owner")))
 #client.remove_command('help')
 #status = cycle(['wip', 'in the making'])
 

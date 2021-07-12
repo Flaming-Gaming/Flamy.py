@@ -8,6 +8,7 @@ class Fun(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.cd_mapping = commands.CooldownMapping.from_cooldown(1, 60, commands.BucketType.member)
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -34,24 +35,61 @@ class Fun(commands.Cog):
         if message.author == self.client.user:
             return
 
-        author_id = str(message.author.id)
         guild_id = str(message.guild.id)
-        user = await self.client.pg_con3.fetch("SELECT * FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
-        if not user:
-            await self.client.pg_con3.execute("INSERT INTO levels (user_id, guild_id, level, xp) VALUES ($1, $2, 0, 0)", author_id, guild_id)
-        user = await self.client.pg_con3.fetchrow("SELECT * FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
-        if random.random() <= 0.05:
-            RANDOM = random.randrange(1, 11)
-        else:
-            RANDOM = random.randrange(1, 4)
-        await self.client.pg_con3.execute("UPDATE levels SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + 1, author_id, guild_id)
-        if await self.level_up(user):
-            await message.channel.send(f'{message.author.mention} is now level {user["level"] + 1}')
+        prefixes = await self.client.pg_con1.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id) 
+        if message.content.startswith(prefixes['prefix']):
             return
 
+        bucket = self.cd_mapping.get_bucket(message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            return
+        else:
+            author_id = str(message.author.id)
+            guild_id = str(message.guild.id)
+            user = await self.client.pg_con3.fetch("SELECT * FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
+            if not user:
+                await self.client.pg_con3.execute("INSERT INTO levels (user_id, guild_id, level, xp) VALUES ($1, $2, 0, 0)", author_id, guild_id)
+            user = await self.client.pg_con3.fetchrow("SELECT * FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
+            if random.random() <= 0.05:
+                RANDOM = random.randrange(1, 11)
+            else:
+                RANDOM = random.randrange(1, 4)
+            await self.client.pg_con3.execute("UPDATE levels SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + RANDOM, author_id, guild_id)
+            if await self.level_up(user):
+                #await message.channel.send(f'{message.author.mention} is now level {user["level"] + 1}')
+                return
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        author_id = str(member.id)
+        guild_id = str(member.guild.id)
+        await self.client.pg_con3.execute("DELETE FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
+        await print("done")
+
     @commands.command()
-    async def level(self, ctx):
-        await ctx.send('h')
+    async def level(self, ctx, member: commands.MemberConverter = None):
+        member = ctx.author if not member else member
+        member_id = str(member.id)
+        guild_id = str(ctx.guild.id)
+        user = await self.client.pg_con3.fetchrow("SELECT * FROM levels WHERE user_id = $1 AND guild_id = $2", member_id, guild_id)
+        if not user:
+            await ctx.send("Member doesn't have a level")
+        else:
+            embed = discord.Embed(colour = member.color, timestamp = ctx.message.created_at)
+            embed.set_author(name = f'Level - {member}', icon_url = member.avatar_url)
+            embed.add_field(name = 'Level', value = user['level'])
+            embed.add_field(name = 'XP', value = user['xp'])
+            await ctx.send(embed = embed)
+
+    @commands.command()
+    async def leaderboard(self, ctx):
+        top10 = await self.client.pg_con3.fetch('SELECT * FROM levels ORDER BY level DESC LIMIT 10')
+        leaderboard = []
+        for user in top10:
+            name = await self.client.fetch_user(int(user['user_id']))
+            leaderboard.append(f'**{name}** - Level {user["level"]}, xp {user["xp"]}')
+        await ctx.send('\n'.join((user) for user in leaderboard))
 
     #8ball
     @commands.command(aliases=['8ball', 'test8'])
