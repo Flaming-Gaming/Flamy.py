@@ -44,7 +44,7 @@ class Fun(commands.Cog):
             RANDOM = random.randrange(1, 11)
         else:
             RANDOM = random.randrange(1, 4)
-        await self.client.pg_con3.execute("UPDATE levels SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + RANDOM, author_id, guild_id)
+        await self.client.pg_con3.execute("UPDATE levels SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + 1, author_id, guild_id)
         if await self.level_up(user):
             #await message.channel.send(f'{message.author.mention} is now level {user['level'] + 1}')
             return
