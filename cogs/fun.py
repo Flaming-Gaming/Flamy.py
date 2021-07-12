@@ -17,13 +17,13 @@ class Fun(commands.Cog):
     async def level_up(self, user):
         current_xp = user['xp']
         current_level = user['level']
-        if current_level <= 16 and current_xp + 1 > (current_level + 1) ** 2 + 6 * (current_level + 1):
+        if current_level <= 16 and current_xp + 1 >= (current_level + 1) ** 2 + 6 * (current_level + 1):
             await self.client.pg_con3.execute("UPDATE levels SET level = $1 WHERE user_id = $2 AND guild_id = $3", current_level + 1, user['user_id'], user['guild_id'])
             return True
-        elif current_level >= 17 and current_level <= 31 and current_xp + 1 > 2.5 * (current_level + 1) ** 2 - 40.5 * (current_level + 1) + 360:
+        elif current_level >= 17 and current_level <= 31 and current_xp + 1 >= 2.5 * (current_level + 1) ** 2 - 40.5 * (current_level + 1) + 360:
             await self.client.pg_con3.execute("UPDATE levels SET level = $1 WHERE user_id = $2 AND guild_id = $3", current_level + 1, user['user_id'], user['guild_id'])
             return True
-        elif current_level >= 32 and current_xp + 1 > 4.5 * (current_level + 1) ** 2 - 162.5 * (current_level + 1) + 2220:
+        elif current_level >= 32 and current_xp + 1 >= 4.5 * (current_level + 1) ** 2 - 162.5 * (current_level + 1) + 2220:
             await self.client.pg_con3.execute("UPDATE levels SET level = $1 WHERE user_id = $2 AND guild_id = $3", current_level + 1, user['user_id'], user['guild_id'])
             return True
         else:
