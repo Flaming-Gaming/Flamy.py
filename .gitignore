@@ -7,8 +7,6 @@ dashboard
 .vscode/
 .env
 
-music.py
-
 # gitignore Python
 # Byte-compiled / optimized / DLL files
 __pycache__/

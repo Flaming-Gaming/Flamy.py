@@ -10,12 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 async def create_db_pool():
-    PREFIXES = os.environ['DATABASE_URL']
-    REACTIONS = os.environ['HEROKU_POSTGRESQL_OLIVE_URL']
-    LEVELS = os.environ['HEROKU_POSTGRESQL_SILVER_URL']
-    client.pg_con = await asyncpg.create_pool(PREFIXES)
-    client.pg_con = await asyncpg.create_pool(REACTIONS)
-    client.pg_con = await asyncpg.create_pool(LEVELS)
+    DATABASE_URL = os.environ['DATABASE_URL']
+    client.pg_con = await asyncpg.create_pool(DATABASE_URL)
 
 class MyBot(commands.Bot):
 
@@ -35,8 +31,8 @@ class MyBot(commands.Bot):
 
 async def get_prefix(client, message):
     guild_id = str(message.guild.id)
-    prefix = await client.pg_con.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
-    return prefix['prefix']
+    prefixes = await client.pg_con.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
+    return prefixes['prefix']
 
 client = MyBot(command_prefix = get_prefix, owner_id = int(os.getenv("Owner")))
 #client.remove_command('help')
