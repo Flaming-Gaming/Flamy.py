@@ -10,8 +10,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 async def create_db_pool():
-    DATABASE_URL = os.environ['DATABASE_URL']
-    client.pg_con = await asyncpg.create_pool(DATABASE_URL)
+    PREFIXES = os.environ['DATABASE_URL']
+    REACTIONS = os.environ['HEROKU_POSTGRESQL_OLIVE_URL']
+    LEVELS = os.environ['HEROKU_POSTGRESQL_SILVER_URL']
+    client.pg_con1 = await asyncpg.create_pool(PREFIXES)
+    client.pg_con2 = await asyncpg.create_pool(REACTIONS)
+    client.pg_con3 = await asyncpg.create_pool(LEVELS)
 
 class MyBot(commands.Bot):
 
@@ -31,7 +35,7 @@ class MyBot(commands.Bot):
 
 async def get_prefix(client, message):
     guild_id = str(message.guild.id)
-    prefixes = await client.pg_con.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
+    prefixes = await client.pg_con1.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
     return prefixes['prefix']
 
 client = MyBot(command_prefix = get_prefix, owner_id = int(os.getenv("Owner")))
@@ -86,18 +90,18 @@ async def on_leave(guild):
 @client.event
 async def on_guild_join(guild):
     guild_id = str(guild.id)
-    await client.pg_con.execute("INSERT INTO prefixes (guild_id, prefix) VALUES ($1, '.')", guild_id)
+    await client.pg_con1.execute("INSERT INTO prefixes (guild_id, prefix) VALUES ($1, '.')", guild_id)
 
 @client.event
 async def on_guild_remove(guild):
     guild_id = str(guild.id)
-    await client.pg_con.execute("DELETE FROM prefixes WHERE guild_id = $1", guild_id)
+    await client.pg_con1.execute("DELETE FROM prefixes WHERE guild_id = $1", guild_id)
 
 @client.command()
 @commands.check_any(commands.is_owner(), commands.has_permissions(manage_guild=True))
 async def change_prefix(ctx, prefix):
     guild_id = str(ctx.guild.id)
-    await client.pg_con.execute("UPDATE prefixes SET prefix = $1 WHERE guild_id = $2", prefix, guild_id)
+    await client.pg_con1.execute("UPDATE prefixes SET prefix = $1 WHERE guild_id = $2", prefix, guild_id)
     await ctx.send(f'Prefix changed to: {prefix}')
 
 #@client.command()
