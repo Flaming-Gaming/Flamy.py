@@ -11,14 +11,23 @@ class Management(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('management.py cog is ready.')
-       
-    #temperature converter
-    @commands.command()
-    async def temperature2(self, ctx, degrees: float, type: str):
-        if type == 'C':
-            await ctx.send(f'{degrees*9/5+32} F')
-        elif type == 'F':
-            await ctx.send(f'{(degrees-32)*5/9} C')
+
+    #@commands.Cog.listener()
+    #async def on_raw_reaction_add(payload):
+    #    if payload.member.bot:
+    #        pass
+    #    else:
+    #        if
+
+    #
+    #@commands.command()
+    #async def reaction_role(self, ctx, message_id, number, *, args):
+    #    if len(args) == number * 2:
+    #        await commands.pg_con.execute("INSERT INTO reaction_roles (message_id) VALUES ($1)", message_id)
+    #        for i in range(0, number):
+    #            message_id.add_reaction(args[i*2+1])
+    #            await commands.pg_con.execute("ALTER TABLE reaction_roles ADD $1 datatype varchar ADD $2 datatype varchar", f'role_{i}', f'emoji_{i}')
+    #            await commands.pg_con.execute("INSERT INTO reaction_roles ($1, $2) VALUES ($3, $4)", f'role_{i}', f'emoji_{i}', args[i*2].id, args[i*2+1])
 
 def setup(client):
     client.add_cog(Management(client))
