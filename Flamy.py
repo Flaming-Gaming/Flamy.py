@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+#databases
 async def create_db_pool():
     PREFIXES = os.environ['DATABASE_URL']
     REACTIONS = os.environ['HEROKU_POSTGRESQL_OLIVE_URL']
@@ -34,6 +35,7 @@ class MyBot(commands.Bot):
 	async def on_ipc_error(self, endpoint, error):
 		print(endpoint, "raised", error)
 
+#prefix
 async def get_prefix(client, message):
     guild_id = str(message.guild.id)
     prefixes = await client.pg_con1.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", guild_id)
@@ -77,6 +79,7 @@ async def on_ready():
 #async def change_status():
 #    await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'over {str(len(client.guilds))} servers', type = discord.ActivityType.watching))
 
+#status
 @client.listen('on_guild_join')
 async def on_join(guild):
     current_guilds = len(client.guilds)
@@ -87,7 +90,7 @@ async def on_leave(guild):
     current_guilds = len(client.guilds)
     await client.change_presence(status=discord.Status.online, activity = discord.Activity(name = f'over {current_guilds} servers', type = discord.ActivityType.watching))
 
-#prefix
+#prefix_edit
 @client.event
 async def on_guild_join(guild):
     guild_id = str(guild.id)
@@ -116,6 +119,18 @@ async def change_prefix(ctx, prefix):
 #        await ctx.send('Please pass in all required arguments.')
 #    if isinstance(error, commands.CommandNotFound):
 #        await ctx.send('Invalid command.')
+
+#@client.command()
+#@commands.is_owner()
+#async def announce(ctx, *, announcement):
+#    for guild in client.guilds:
+#        for channel in guild.channels:
+#            try:
+#                await channel.send(announcement)
+#            except Exception:
+#                continue
+#            else:
+#                break
 
 #cogs
 @client.command()

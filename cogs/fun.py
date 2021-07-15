@@ -84,7 +84,8 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def leaderboard(self, ctx):
-        top10 = await self.client.pg_con3.fetch('SELECT * FROM levels ORDER BY level DESC LIMIT 10')
+        guild_id = str(ctx.guild.id)
+        top10 = await self.client.pg_con3.fetch('SELECT * FROM levels WHERE guild_id = $1 ORDER BY level DESC LIMIT 10', guild_id)
         leaderboard = []
         for user in top10:
             name = await self.client.fetch_user(int(user['user_id']))
