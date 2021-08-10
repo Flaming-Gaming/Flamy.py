@@ -16,7 +16,7 @@ colorama==0.4.4
 cryptography==3.4.7
 discord==1.0.1
 discord-ext-ipc==2.0.0
-discord.py==1.7.3
+discord.py @ git+https://github.com/Rapptz/discord.py@ecf239d2a2e6ee8e027ca5fef9acf4564a9f3a09
 Flask==2.0.1
 Flask-OAuth @ git+https://github.com/mitsuhiko/flask-oauth@af6432621a9add5e55b0d7638e1380f66f3d4ed0
 h11==0.12.0
