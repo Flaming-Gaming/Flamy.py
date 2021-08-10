@@ -10,21 +10,24 @@ class Moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def cog_check(self, ctx):
+        return await commands.guild_only().predicate(ctx)
+
     @commands.Cog.listener()
     async def on_ready(self):
-        print('moderation.py cog is ready.')
+        print('moderation.py cog loaded and ready to go!')
 
     #clear
     @commands.command()
     @commands.check_any(commands.is_owner(), commands.has_permissions(manage_messages=True))
-    async def clear(self, ctx, amount=5):
+    async def clear(self, ctx, amount=1):
         await ctx.channel.purge(limit=amount+1)
         await ctx.send(f"Deleted {amount} messages :)", delete_after=3)
 
-    @clear.error
-    async def clear_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Please specify an amount to delete.')
+    #@clear.error
+    #async def clear_error(self, ctx, error):
+    #    if isinstance(error, commands.MissingRequiredArgument):
+    #        await ctx.send('Please specify an amount to delete.')
 
     #kick
     @commands.command()

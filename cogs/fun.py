@@ -12,7 +12,7 @@ class Fun(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('fun.py cog is ready.')
+        print('fun.py cog loaded and ready to go!')
 
     #level system
     async def level_up(self, user):
@@ -33,6 +33,12 @@ class Fun(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.client.user:
+            return
+
+        if message.author.bot:
+            return
+
+        if not message.guild:
             return
 
         guild_id = str(message.guild.id)
@@ -65,9 +71,9 @@ class Fun(commands.Cog):
         author_id = str(member.id)
         guild_id = str(member.guild.id)
         await self.client.pg_con3.execute("DELETE FROM levels WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
-        await print("done")
 
     @commands.command()
+    @commands.guild_only()
     async def level(self, ctx, member: commands.MemberConverter = None):
         member = ctx.author if not member else member
         member_id = str(member.id)
@@ -83,9 +89,10 @@ class Fun(commands.Cog):
             await ctx.send(embed = embed)
 
     @commands.command()
+    @commands.guild_only()
     async def leaderboard(self, ctx):
         guild_id = str(ctx.guild.id)
-        top10 = await self.client.pg_con3.fetch('SELECT * FROM levels WHERE guild_id = $1 ORDER BY level DESC LIMIT 10', guild_id)
+        top10 = await self.client.pg_con3.fetch('SELECT * FROM levels WHERE guild_id = $1 ORDER BY xp DESC LIMIT 10', guild_id)
         leaderboard = []
         for user in top10:
             name = await self.client.fetch_user(int(user['user_id']))

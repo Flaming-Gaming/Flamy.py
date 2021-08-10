@@ -8,6 +8,7 @@ dashboard
 .env
 
 music.py
+splatnet.py
 
 # gitignore Python
 # Byte-compiled / optimized / DLL files

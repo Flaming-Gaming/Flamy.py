@@ -10,9 +10,12 @@ class Management(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def cog_check(self, ctx):
+        return await commands.guild_only().predicate(ctx)
+
     @commands.Cog.listener()
     async def on_ready(self):
-        print('management.py cog is ready.')
+        print('management.py cog loaded and ready to go!')
 
     #@commands.command()
     #async def server_info(self, ctx):

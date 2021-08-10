@@ -12,7 +12,7 @@ class Time(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('time.py cog is ready.')
+        print('time.py cog loaded and ready to go!')
 
     #Time Converter
     @commands.command()

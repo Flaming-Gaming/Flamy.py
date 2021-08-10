@@ -12,7 +12,7 @@ class Converters(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('converters.py cog is ready.')
+        print('converters.py cog loaded and ready to go!')
 
     #distance converter
     @commands.command()

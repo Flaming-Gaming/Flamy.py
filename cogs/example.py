@@ -9,7 +9,7 @@ class Example(commands.Cog):
     #Events
     @commands.Cog.listener()
     async def on_ready(self):
-        print('example.py cog is ready.')
+        print('example.py cog loaded and ready to go!')
 
     #Commands
     @commands.command()
